@@ -30,6 +30,13 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Dashboard
                                 </NavLink>
+
+                                <NavLink
+                                    href={route('messages.create')}
+                                    active={route().current('messages.create')}
+                                >
+                                    Enviar nuevo mensaje
+                                </NavLink>
                             </div>
                         </div>
 

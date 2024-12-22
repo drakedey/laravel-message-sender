@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Message extends Model
 {
@@ -23,5 +24,10 @@ class Message extends Model
     public function userMessages(): HasMany
     {
         return $this->hasMany(UserMessage::class);
+    }
+
+    public function messageFiles(): HasOne
+    {
+        return $this->hasOne(MessageFile::class);
     }
 }

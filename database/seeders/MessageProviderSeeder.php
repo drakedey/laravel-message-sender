@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\DB;
 
 class MessageProviderSeeder extends Seeder
 {
-    /**
+    /**∫
      * Run the database seeds.
      */
     public function run(): void
     {
         $providers = [
-            ['name' => 'Telegram'],
-            ['name' => 'Slack'],
-            ['name' => 'Discord'],
-            ['name' => 'Whatsapp']
+            ['name' => 'Telegram', 'class_key' => 'DEFAULT'],
+            ['name' => 'Slack', 'class_key' => 'DEFAULT'],
+            ['name' => 'Discord', 'class_key' => 'DEFAULT'],
+            ['name' => 'Whatsapp', 'class_key' => 'DEFAULT']
         ];
 
         DB::table('message_providers')->insert($providers);
