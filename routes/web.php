@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,12 +29,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/create', [MessageController::class, 'create'])->name('messages.create');
     Route::post('/messages-massive', [MessageController::class, 'massStore'])->name('messages.massStore');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
-    
-    Route::get('/messages/search-users', [MessageController::class, 'searchUsers'])->name('messages.search-users');
-    Route::get('/messages/search-users-with-providers', [MessageController::class, 'searchUsersWithProvider'])->name('messages.search-users-with-providers');
-    
-    Route::get('/messages/user-providers', [MessageController::class, 'getUserProviders'])->name('messages.user-providers');
-    Route::get('/messages/all-providers', [MessageController::class, 'getAllProviders'])->name('messages.all-providers');
+
+    Route::get('/users/search-users', [UserController::class, 'searchUsers'])->name('users.search-users');
+    Route::get('/users/search-users-with-providers', [UserController::class, 'searchUsersWithProvider'])->name('users.search-users-with-providers');
+
+    Route::get('/providers/user-providers', [ProviderController::class, 'getUserProviders'])->name('providers.user-providers');
+    Route::get('/providers/all-providers', [ProviderController::class, 'getAllProviders'])->name('providers.all-providers');
 
 });
 

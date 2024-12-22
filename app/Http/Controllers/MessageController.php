@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Message;
 use App\Models\UserMessage;
 use App\Models\MessageProvider;
@@ -15,40 +14,6 @@ class MessageController extends Controller
     public function create()
     {
         return Inertia::render('Messages/Create');
-    }
-
-    public function getAllProviders(Request $request) {
-        $providers = MessageProvider::all();
-        return response()->json($providers);
-    }
-
-    public function searchUsersWithProvider(Request $request) {
-
-        $users = User::join('user_message_providers', 'users.id', '=', 'user_message_providers.user_id')
-            ->where('users.id', '!=', auth()->id())
-            ->where('users.email', 'like', "%{$request->search}%")
-            ->where('user_message_providers.message_provider_id', $request->providerId)
-            ->get(['users.id', 'users.name', 'users.email']);
-
-        return response()->json($users);
-    }
-
-    public function searchUsers(Request $request)
-    {
-        $users = User::where('email', 'like', "%{$request->search}%")
-            ->where('id', '!=', auth()->id())
-            ->limit(5)
-            ->get(['id', 'name', 'email']);
-
-        return response()->json($users);
-    }
-
-    public function getUserProviders(Request $request)
-    {
-        $user = User::findOrFail($request->user_id);
-        $providers = $user->messageProviders()->get();
-
-        return response()->json($providers);
     }
 
     public function store(Request $request)

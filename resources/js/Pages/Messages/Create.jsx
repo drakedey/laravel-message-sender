@@ -22,7 +22,7 @@ export default function Create({ auth }) {
         if (search.length < 2) return;
 
         try {
-            const response = await axios.get(route('messages.search-users'), {
+            const response = await axios.get(route('users.search-users'), {
                 params: { search },
             });
             return response.data;
@@ -33,9 +33,12 @@ export default function Create({ auth }) {
 
     const fetchUserProviders = async (userId) => {
         try {
-            const response = await axios.get(route('messages.user-providers'), {
-                params: { user_id: userId },
-            });
+            const response = await axios.get(
+                route('providers.user-providers'),
+                {
+                    params: { user_id: userId },
+                },
+            );
             setProviders(response.data);
         } catch (error) {
             console.error('Error fetching providers:', error);

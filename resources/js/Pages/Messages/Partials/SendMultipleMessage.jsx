@@ -20,7 +20,7 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
 
         try {
             const response = await axios.get(
-                route('messages.search-users-with-providers'),
+                route('users.search-users-with-providers'),
                 {
                     params: { search, providerId: data.message_provider_id },
                 },
@@ -77,7 +77,7 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
                 setData('message_provider_id', '');
                 handleSubmitFinished();
             },
-            onError: (err) => {
+            onError: () => {
                 alert('Error sending message');
             },
         });
@@ -86,7 +86,7 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
     useEffect(() => {
         // Fetch providers
         axios
-            .get(route('messages.all-providers'))
+            .get(route('providers.all-providers'))
             .then((response) => {
                 setProviders(response.data);
             })
