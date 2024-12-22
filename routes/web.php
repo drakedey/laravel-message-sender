@@ -25,9 +25,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/messages/create', [MessageController::class, 'create'])->name('messages.create');
+    Route::post('/messages-massive', [MessageController::class, 'massStore'])->name('messages.massStore');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    
     Route::get('/messages/search-users', [MessageController::class, 'searchUsers'])->name('messages.search-users');
+    Route::get('/messages/search-users-with-providers', [MessageController::class, 'searchUsersWithProvider'])->name('messages.search-users-with-providers');
+    
     Route::get('/messages/user-providers', [MessageController::class, 'getUserProviders'])->name('messages.user-providers');
+    Route::get('/messages/all-providers', [MessageController::class, 'getAllProviders'])->name('messages.all-providers');
+
 });
 
 require __DIR__ . '/auth.php';

@@ -2,6 +2,8 @@
 
 namespace App\Providers\MessageProviders;
 
+use App\Providers\MessageProviders\Dto\MessageProviderDTO;
+
 class DefaultMessageProvider implements MessageProviderInterface
 {
   private $initialized = false;
@@ -13,19 +15,20 @@ public function initializeConnection()
     $this->initialized = true;
   }
 
-  public function sendMessage(string $content, int $recipientId): array
+  public function sendMessage(string $content, int $recipientId): MessageProviderDTO
   {
     $this->initializeConnection();
-    return [
-      'success' => true
-    ];
+    return new MessageProviderDTO(true, $recipientId);
   }
 
   public function sendMultipleMessages(string $content, array $recipientIds): array
   {
-    $this->initializeConnection();
-    return [
-      'success' => true
-    ];
+    $responses = [];
+    foreach ($recipientIds as $recipientId) {
+      $response = $this->sendMessage($content, $recipientId);
+      $responses[] = $response;
+    }
+
+    return $responses;
   }
 }

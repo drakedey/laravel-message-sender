@@ -1,37 +1,35 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 import axios from 'axios';
-import debounce from 'lodash/debounce';
 import { useState } from 'react';
+import MessageContent from './Components/MessageContent';
+import ProvidersSelectors from './Components/ProvidersSelectors';
+import UserSearcher from './Components/UserSearcher';
+import SendMultipleMessage from './Partials/SendMultipleMessage';
 
 export default function Create({ auth }) {
-    const [messageType, setMessageType] = useState(null); // 'single' or 'multiple'
-    const [searchTerm, setSearchTerm] = useState('');
-    const [users, setUsers] = useState([]);
+    const [messageType, setMessageType] = useState(null);
     const [providers, setProviders] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing } = useForm({
         content: '',
         message_provider_id: '',
         recipient_id: '',
     });
 
-    // Debounced search function
-    const searchUsers = debounce(async (search) => {
+    const searchUsers = async (search) => {
         if (search.length < 2) return;
 
         try {
             const response = await axios.get(route('messages.search-users'), {
                 params: { search },
             });
-            setUsers(response.data);
-            setShowUserDropdown(true);
+            return response.data;
         } catch (error) {
             console.error('Error searching users:', error);
         }
-    }, 300);
+    };
 
     const fetchUserProviders = async (userId) => {
         try {
@@ -46,19 +44,14 @@ export default function Create({ auth }) {
 
     const handleUserSelect = (user) => {
         setSelectedUser(user);
-        setSearchTerm(user.email);
-        setShowUserDropdown(false);
         setData('recipient_id', user.id);
         fetchUserProviders(user.id);
     };
 
     const resetView = () => {
         setMessageType(null);
-        setSearchTerm('');
-        setUsers([]);
         setProviders([]);
         setSelectedUser(null);
-        setShowUserDropdown(false);
         setData('content', '');
         setData('message_provider_id', '');
         setData('recipient_id', '');
@@ -122,107 +115,40 @@ export default function Create({ auth }) {
                                 >
                                     {/* User Search */}
                                     <div className="relative">
-                                        <label className="mb-2 block text-sm font-bold text-gray-700">
-                                            Search User by Email
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="w-full rounded-lg border px-3 py-2"
-                                            value={searchTerm}
-                                            onChange={(e) => {
-                                                setSearchTerm(e.target.value);
-                                                searchUsers(e.target.value);
-                                            }}
-                                            placeholder="Type email to search..."
+                                        <UserSearcher
+                                            userApiSearcher={searchUsers}
+                                            handleUserSelect={handleUserSelect}
                                         />
-
-                                        {/* Users Dropdown */}
-                                        {showUserDropdown &&
-                                            users.length > 0 && (
-                                                <div className="z-10 mt-1 w-full rounded-lg border bg-white shadow-lg">
-                                                    {users.map((user) => (
-                                                        <div
-                                                            key={user.id}
-                                                            className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                                                            onClick={() =>
-                                                                handleUserSelect(
-                                                                    user,
-                                                                )
-                                                            }
-                                                        >
-                                                            <div>
-                                                                {user.name}
-                                                            </div>
-                                                            <div className="text-sm text-gray-600">
-                                                                {user.email}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
                                     </div>
 
                                     {/* Provider Selection - Only show if user is selected */}
                                     {selectedUser && (
-                                        <div>
-                                            <label className="mb-2 block text-sm font-bold text-gray-700">
-                                                Select Provider
-                                            </label>
-                                            <select
-                                                className="w-full rounded-lg border px-3 py-2"
-                                                value={data.message_provider_id}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'message_provider_id',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            >
-                                                <option value="">
-                                                    Select a provider
-                                                </option>
-                                                {providers.map((provider) => (
-                                                    <option
-                                                        key={provider.id}
-                                                        value={provider.id}
-                                                    >
-                                                        {provider.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {errors.message_provider_id && (
-                                                <div className="mt-1 text-sm text-red-500">
-                                                    {errors.message_provider_id}
-                                                </div>
-                                            )}
-                                        </div>
+                                        <ProvidersSelectors
+                                            providers={providers}
+                                            handleProviderSelect={(e) =>
+                                                setData(
+                                                    'message_provider_id',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            providerId={
+                                                data.message_provider_id
+                                            }
+                                        />
                                     )}
 
                                     {/* Message Content - Only show if provider is selected */}
                                     {data.message_provider_id && (
-                                        <div>
-                                            <label className="mb-2 block text-sm font-bold text-gray-700">
-                                                Message
-                                            </label>
-                                            <textarea
-                                                className="w-full rounded-lg border px-3 py-2"
-                                                rows="4"
-                                                value={data.content}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'content',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                            />
-                                            {errors.content && (
-                                                <div className="mt-1 text-sm text-red-500">
-                                                    {errors.content}
-                                                </div>
-                                            )}
-                                        </div>
+                                        <MessageContent
+                                            handleContentChange={(e) =>
+                                                setData(
+                                                    'content',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            message={data.content}
+                                        />
                                     )}
-
                                     {/* Submit Button - Only show if all fields are filled */}
                                     {data.message_provider_id &&
                                         data.content && (
@@ -235,6 +161,12 @@ export default function Create({ auth }) {
                                             </button>
                                         )}
                                 </form>
+                            )}
+
+                            {messageType === 'multiple' && (
+                                <SendMultipleMessage
+                                    handleSubmitFinished={resetView}
+                                />
                             )}
                         </div>
                     </div>
