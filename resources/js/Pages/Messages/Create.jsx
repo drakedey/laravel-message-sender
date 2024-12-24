@@ -4,16 +4,11 @@ import { useState } from 'react';
 import SendMultipleMessage from './Partials/SendMultipleMessage';
 import SendOneMessage from './Partials/SendOneMessage';
 
-export default function Create({ auth }) {
+export default function Create({ auth, maxFileSize }) {
     const [messageType, setMessageType] = useState(null);
 
     const resetView = () => {
         setMessageType(null);
-        setProviders([]);
-        setSelectedUser(null);
-        setData('content', '');
-        setData('message_provider_id', '');
-        setData('recipient_id', '');
     };
 
     return (
@@ -28,7 +23,6 @@ export default function Create({ auth }) {
                                 Send Message
                             </h2>
 
-                            {/* Message Type Selection */}
                             {
                                 <div className="space-x-4">
                                     <button
@@ -51,12 +45,14 @@ export default function Create({ auth }) {
                             {messageType === 'single' && (
                                 <SendOneMessage
                                     handleSubmitFinished={resetView}
+                                    maxFileSize={maxFileSize}
                                 />
                             )}
 
                             {messageType === 'multiple' && (
                                 <SendMultipleMessage
                                     handleSubmitFinished={resetView}
+                                    maxFileSize={maxFileSize}
                                 />
                             )}
                         </div>

@@ -74,4 +74,6 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    'max_message_file_size' => 1024 * 1024 * 10, // 10MB
+
 ];

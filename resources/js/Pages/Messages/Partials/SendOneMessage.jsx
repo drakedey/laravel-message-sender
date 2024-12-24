@@ -4,7 +4,7 @@ import MessageContent from '../Components/MessageContent';
 import ProvidersSelectors from '../Components/ProvidersSelectors';
 import UserSearcher from '../Components/UserSearcher';
 
-export default function SendOneMessage({ handleSubmitFinished }) {
+export default function SendOneMessage({ handleSubmitFinished, maxFileSize }) {
     const [providers, setProviders] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
@@ -12,6 +12,7 @@ export default function SendOneMessage({ handleSubmitFinished }) {
         content: '',
         message_provider_id: '',
         recipient_id: '',
+        file: null,
     });
 
     const resetView = () => {
@@ -20,6 +21,7 @@ export default function SendOneMessage({ handleSubmitFinished }) {
         setData('content', '');
         setData('message_provider_id', '');
         setData('recipient_id', '');
+        setData('file', null);
         handleSubmitFinished();
     };
 
@@ -66,6 +68,12 @@ export default function SendOneMessage({ handleSubmitFinished }) {
         resetView();
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+
+        setData('file', file);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route('messages.store'), {
@@ -77,7 +85,6 @@ export default function SendOneMessage({ handleSubmitFinished }) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* User Search */}
             <div className="relative">
                 <UserSearcher
                     userApiSearcher={searchUsers}
@@ -85,7 +92,6 @@ export default function SendOneMessage({ handleSubmitFinished }) {
                 />
             </div>
 
-            {/* Provider Selection - Only show if user is selected */}
             {selectedUser && (
                 <ProvidersSelectors
                     providers={providers}
@@ -96,16 +102,18 @@ export default function SendOneMessage({ handleSubmitFinished }) {
                 />
             )}
 
-            {/* Message Content - Only show if provider is selected */}
             {data.message_provider_id && (
                 <MessageContent
                     handleContentChange={(e) =>
                         setData('content', e.target.value)
                     }
                     message={data.content}
+                    handleFileChange={handleFileChange}
+                    file={data.file}
+                    maxFileSize={maxFileSize}
                 />
             )}
-            {/* Submit Button - Only show if all fields are filled */}
+
             {data.message_provider_id && data.content && (
                 <button
                     type="submit"

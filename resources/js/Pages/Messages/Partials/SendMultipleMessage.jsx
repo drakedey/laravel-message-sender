@@ -5,7 +5,10 @@ import MessageContent from '../Components/MessageContent';
 import ProvidersSelectors from '../Components/ProvidersSelectors';
 import UserSearcher from '../Components/UserSearcher';
 
-export default function SendMultipleMessage({ handleSubmitFinished }) {
+export default function SendMultipleMessage({
+    handleSubmitFinished,
+    maxFileSize,
+}) {
     const [providers, setProviders] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState({});
 
@@ -13,6 +16,7 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
         content: '',
         message_provider_id: '',
         recipent_ids: [],
+        file: null,
     });
 
     const searchUsersWithProviders = async (search) => {
@@ -67,7 +71,6 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(data);
         post(route('messages.massStore'), {
             async: true,
             onSuccess: () => {
@@ -81,6 +84,12 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
                 alert('Error sending message');
             },
         });
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+
+        setData('file', file);
     };
 
     useEffect(() => {
@@ -132,6 +141,9 @@ export default function SendMultipleMessage({ handleSubmitFinished }) {
                         handleContentChange={(e) => {
                             setData('content', e.target.value);
                         }}
+                        handleFileChange={handleFileChange}
+                        file={data.file}
+                        maxFileSize={maxFileSize}
                     />
                 )}
 

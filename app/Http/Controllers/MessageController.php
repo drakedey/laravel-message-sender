@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Models\MessageFile;
 use App\Models\UserMessage;
 use App\Models\MessageProvider;
 use App\Providers\MessageProviders\MessageProviderInterface;
@@ -13,7 +14,7 @@ class MessageController extends Controller
 {
     public function create()
     {
-        return Inertia::render('Messages/Create');
+        return Inertia::render('Messages/Create')->with('maxFileSize', config('filesystems.max_message_file_size'));
     }
 
     public function store(Request $request)
@@ -22,6 +23,7 @@ class MessageController extends Controller
             'content' => 'required|string',
             'message_provider_id' => 'required|exists:message_providers,id',
             'recipient_id' => 'required|exists:users,id',
+            'file' => 'nullable|file|max:' . config('filesystems.max_message_file_size') . '|mimes:png,jpg,jpeg',
         ]);
 
         $messageProvider = MessageProvider::find($validated['message_provider_id']);
@@ -46,6 +48,11 @@ class MessageController extends Controller
             'status' => $response->success ? 'SUCCESS' : 'FAILED'
         ]);
 
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $this->processFile($file, $message->id);
+        }
+
         return redirect()->route('messages.create')
             ->with('success', $response->success ? 'Message sent successfully' : 'Failed to send message');
     }
@@ -56,6 +63,7 @@ class MessageController extends Controller
             'message_provider_id' => 'required|exists:message_providers,id',
             'recipent_ids' => 'required|array',
             'recipent_ids.*' => 'exists:users,id',
+            'file' => 'nullable|file|max:' . config('filesystems.max_message_file_size') . '|mimes:png,jpg,jpeg',
         ]);
 
         $messageProvider = MessageProvider::find($validated['message_provider_id']);
@@ -86,6 +94,22 @@ class MessageController extends Controller
             }
     
         }
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $this->processFile($file, $message->id);
+        }
         return redirect()->route('messages.create')->with('success', $success ? 'Messages sent successfully' : 'Failed to send messages');
+    }
+
+    private function processFile($file, $messageId) {
+        $base64 = base64_encode(file_get_contents($file));
+
+        MessageFile::create([
+            'file_name' => $file->getClientOriginalName(),
+            'file_content' => $base64,
+            'file_type' => $file->getClientMimeType(),
+            'message_id' => $messageId,
+        ]);
     }
 }
